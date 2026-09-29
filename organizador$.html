@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Organizador Financeiro</title>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; color: var(--dark); }
+
+        .balance-card {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-card h2 { margin: 0; font-size: 2rem; }
+
+        .input-group { margin-bottom: 15px; }
+
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-budget { background: var(--primary); color: white; margin-bottom: 20px; }
+        .btn-expense { background: var(--dark); color: white; }
+        button:hover { opacity: 0.9; }
+
+        .history { margin-top: 30px; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .expense-val { color: var(--danger); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Finanças Pessoais</h1>
+
+    <div class="balance-card">
+        <p>Saldo Restante</p>
+        <h2 id="balance">R$ 0,00</h2>
+    </div>
+
+    <div class="input-group">
+        <label>Orçamento Mensal (R$)</label>
+        <input type="number" id="monthly-budget" placeholder="Ex: 3000">
+    </div>
+    <button class="btn-budget" onclick="setBudget()">Definir Orçamento</button>
+
+    <hr>
+
+    <h3>Novo Gasto</h3>
+    <div class="input-group">
+        <input type="text" id="expense-name" placeholder="Descrição (ex: Aluguel)">
+    </div>
+    <div class="input-group">
+        <input type="number" id="expense-amount" placeholder="Valor (R$)">
+    </div>
+    <div class="input-group">
+        <select id="expense-category">
+            <option value="Essencial">Essencial</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Investimento">Investimento/Reserva</option>
+        </select>
+    </div>
+    <button class="btn-expense" onclick="addExpense()">Adicionar Gasto</button>
+
+    <div class="history">
+        <h3>Histórico</h3>
+        <div id="history-list"></div>
+    </div>
+</div>
+
+<script>
+    let totalBudget = 0;
+    let expenses = [];
+
+    function updateUI() {
+        const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+        const currentBalance = totalBudget - totalExpenses;
+        
+        const balanceDisplay = document.getElementById('balance');
+        balanceDisplay.innerText = `R$ ${currentBalance.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        
+        // Mudar cor se ficar negativo
+        balanceDisplay.style.color = currentBalance < 0 ? "#e74c3c" : "white";
+
+        const list = document.getElementById('history-list');
+        list.innerHTML = "";
+        
+        expenses.forEach(item => {
+            list.innerHTML += `
+                <div class="history-item">
+                    <span>${item.name} (${item.category})</span>
+                    <span class="expense-val">- R$ ${item.amount.toFixed(2)}</span>
+                </div>
+            `;
+        });
+    }
+
+    function setBudget() {
+        const val = document.getElementById('monthly-budget').value;
+        if (val) {
+            totalBudget = parseFloat(val);
+            updateUI();
+        }
+    }
+
+    function addExpense() {
+        const name = document.getElementById('expense-name').value;
+        const amount = parseFloat(document.getElementById('expense-amount').value);
+        const category = document.getElementById('expense-category').value;
+
+        if (name && amount) {
+            expenses.push({ name, amount, category });
+            document.getElementById('expense-name').value = "";
+            document.getElementById('expense-amount').value = "";
+            updateUI();
+        }
+    }
+</script>
+
+</body>
+</html>
